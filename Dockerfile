@@ -11,7 +11,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
 RUN debootstrap --merged-usr --arch=arm64 \
     --include=git,vim,curl,g++,pandoc,texlive-xetex \
-    --exclude=ubuntu-minimal,ubuntu-pro-client,netplan.io,python3-netplan,libnetplan1,netplan-generator,systemd-resolved,systemd-timesyncd \
+    --exclude=ubuntu-minimal,ubuntu-pro-client,ubuntu-pro-client-l10n,netplan.io,python3-netplan,libnetplan1,netplan-generator,eject,systemd-resolved,systemd-timesyncd,networkd-dispatcher,rsyslog,keyboard-configuration \
     --components=main,universe "$DISTR" /target
 
 RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
