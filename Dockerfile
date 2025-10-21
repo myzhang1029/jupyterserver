@@ -31,7 +31,7 @@ COPY --from=0 /target/. /
 RUN bash /var/tmp/Miniforge3.sh -b -p /opt/conda
 RUN rm /var/tmp/Miniforge3.sh
 RUN /opt/conda/bin/conda install python mamba jupyterlab matplotlib seaborn numpy scipy pandas pillow jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex ipympl xeus-cling evcxr nbconvert nbconvert-webpdf
-RUN /opt/conda/bin/conda clean --all
+RUN /opt/conda/bin/conda clean --all --yes
 RUN /opt/conda/bin/evcxr_jupyter --install
 
 RUN yes | DEBIAN_FRONTEND=readline apt-get install -y /var/tmp/wolfram-engine.deb
