@@ -9,7 +9,10 @@ ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
-RUN debootstrap --merged-usr --include=git,vim,curl,g++,pandoc,texlive-xetex --exclude=netplan.io --components=main,universe "$DISTR" /target
+RUN debootstrap --merged-usr --arch=arm64 \
+    --include=git,vim,curl,g++,pandoc,texlive-xetex \
+    --exclude=ubuntu-minimal,ubuntu-pro-client,netplan.io,python3-netplan,libnetplan1,netplan-generator,systemd-resolved,systemd-timesyncd \
+    --components=main,universe "$DISTR" /target
 
 RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
 RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
@@ -33,5 +36,6 @@ RUN /opt/conda/bin/evcxr_jupyter --install
 
 RUN yes | DEBIAN_FRONTEND=readline apt-get install -y /var/tmp/wolfram-engine.deb
 RUN rm /var/tmp/wolfram-engine.deb
+RUN apt-get clean
 
 CMD ["/opt/conda/bin/jupyter", "lab", "--allow-root"]
