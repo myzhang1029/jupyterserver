@@ -26,24 +26,36 @@ RUN dpkg-deb -b wolfram-engine /target/var/tmp/wolfram-engine.deb
 
 FROM scratch
 
-ENV PATH="/opt/conda/bin:$PATH"
+ENV PATH="/opt/cargo/bin:/opt/julia/bin:/opt/conda/bin:$PATH"
+ENV CARGO_HOME=/opt/cargo
+ENV RUSTUP_HOME=/opt/rustup
+ENV JULIA_INSTALLATION_PATH=/opt/julia
 
 COPY --from=0 /target/. /
 
+RUN echo "PATH='$PATH'" >> /etc/profile
+RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/profile
+RUN echo "RUSTUP_HOME='$RUSTUP_HOME'" >> /etc/profile
+
+# Install conda here to make sure the shebang paths are correct
 RUN bash /var/tmp/Miniforge3.sh -b -p /opt/conda
 RUN rm /var/tmp/Miniforge3.sh
 RUN /opt/conda/bin/conda install python mamba jupyterlab \
     matplotlib seaborn numpy pandas scipy sympy pillow \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
-    ipympl xeus-cling evcxr r r-irkernel nbconvert nbconvert-webpdf
+    ipympl xeus-cling r r-irkernel nbconvert nbconvert-webpdf
 RUN /opt/conda/bin/conda clean --all --yes
 
-# Kernel initializtion steps
-RUN /opt/conda/bin/evcxr_jupyter --install
+# Kernel initialization steps for additional languages
+## Rust
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly --profile minimal
+RUN "$CARGO_HOME"/bin/cargo install --locked evcxr_jupyter
+RUN "$CARGO_HOME"/bin/evcxr_jupyter --install
+## Julia
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y --path "$JULIA_INSTALLATION_PATH"
+RUN "$JULIA_INSTALLATION_PATH"/bin/julia -e 'using Pkg; Pkg.add("IJulia")'
+## R
 RUN /opt/conda/bin/R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
-
-RUN curl -fsSL https://install.julialang.org | sh -s -- -y --path /opt/julia
-RUN /opt/julia/bin/julia -e 'using Pkg; Pkg.add("IJulia")'
 
 # You should agree to the Wolfram Engine license before using this software
 RUN yes | DEBIAN_FRONTEND=readline apt-get install -y /var/tmp/wolfram-engine.deb
