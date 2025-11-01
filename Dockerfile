@@ -26,21 +26,31 @@ RUN dpkg-deb -b wolfram-engine /target/var/tmp/wolfram-engine.deb
 
 FROM scratch
 
+ENV PATH="/opt/conda/bin:$PATH"
+
 COPY --from=0 /target/. /
 
 RUN bash /var/tmp/Miniforge3.sh -b -p /opt/conda
 RUN rm /var/tmp/Miniforge3.sh
-RUN /opt/conda/bin/conda install python mamba jupyterlab matplotlib seaborn numpy scipy pandas pillow jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex ipympl xeus-cling evcxr r r-irkernel nbconvert nbconvert-webpdf
+RUN /opt/conda/bin/conda install python mamba jupyterlab \
+    matplotlib seaborn numpy pandas scipy sympy pillow \
+    jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
+    ipympl xeus-cling evcxr r r-irkernel nbconvert nbconvert-webpdf
 RUN /opt/conda/bin/conda clean --all --yes
+
+# Kernel initializtion steps
 RUN /opt/conda/bin/evcxr_jupyter --install
+RUN /opt/conda/bin/R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
 
 RUN curl -fsSL https://install.julialang.org | sh -s -- -y --path /opt/julia
 RUN /opt/julia/bin/julia -e 'using Pkg; Pkg.add("IJulia")'
 
+# You should agree to the Wolfram Engine license before using this software
 RUN yes | DEBIAN_FRONTEND=readline apt-get install -y /var/tmp/wolfram-engine.deb
 RUN rm /var/tmp/wolfram-engine.deb
 
-# Wolfram Kernel must be manually installed:
+# Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
+# The kernel must be manually installed
 # ```
 # PacletInstall["/var/tmp/WolframLanguageForJupyter.paclet"]
 # Needs["WolframLanguageForJupyter`"]
