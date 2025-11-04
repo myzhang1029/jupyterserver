@@ -30,6 +30,7 @@ RUN debootstrap --merged-usr --arch=arm64 \
 RUN yes | DEBIAN_FRONTEND=readline dpkg --root /target --install ./wolfram-engine.deb
 
 RUN apt-mark -o Dir=/target auto $(cat wolfram-deps | tr , ' ')
+RUN apt -o Dir=/target clean
 
 RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
 RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
