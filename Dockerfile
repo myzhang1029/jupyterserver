@@ -22,7 +22,7 @@ RUN dpkg-deb -b wolfram-engine wolfram-engine.deb
 RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
 
 RUN debootstrap --merged-usr --arch=arm64 \
-    --include="git,vim,curl,g++,pandoc,texlive-xetex,$(cat wolfram-deps)" \
+    --include="ca-certificates,iproute2,iputils-ping,less,xxd,git,vim,curl,g++,pandoc,texlive-xetex,$(cat wolfram-deps)" \
     --variant=minbase \
     --components=main,universe "$DISTR" /target
 
