@@ -4,7 +4,7 @@ FROM ubuntu:latest AS build
 WORKDIR /tmp
 ENV DISTR=plucky
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
-ENV WOLFRAM_ENGINE="https://files.wolframcdn.com/raspbian/14.2.1.0/wolfram-engine_14.2.1%2B202504031673_arm64.deb"
+ENV WOLFRAM_ENGINE="http://archive.raspberrypi.com/debian/pool/main/w/wolfram-engine/wolfram-engine_14.3.0+202510021899_arm64.deb"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
 RUN apt-get update
@@ -16,7 +16,7 @@ RUN dpkg-deb -R wolfram-engine-orig.deb wolfram-engine
 # Extract the line number of the Depends line
 RUN grep -n ^Depends: wolfram-engine/DEBIAN/control | cut -f1 -d: > lineno
 # Correct dependencies
-RUN sed -i "$(cat lineno)s/libwayland-egl1-mesa/libwayland-egl1, libegl1/;$(cat lineno)s/libasound2/libasound2t64/" wolfram-engine/DEBIAN/control
+RUN sed -i "$(cat lineno)s/libasound2/libasound2t64/" wolfram-engine/DEBIAN/control
 RUN dpkg-deb -b wolfram-engine wolfram-engine.deb
 # Extract deps for debootstrap
 RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
