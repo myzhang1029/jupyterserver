@@ -9,19 +9,29 @@ ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
-RUN debootstrap --merged-usr --arch=arm64 \
-    --include=git,vim,curl,g++,pandoc,texlive-xetex \
-    --exclude=ubuntu-minimal,ubuntu-pro-client,ubuntu-pro-client-l10n,netplan.io,python3-netplan,libnetplan1,netplan-generator,eject,systemd-resolved,systemd-timesyncd,networkd-dispatcher,rsyslog,keyboard-configuration \
-    --components=main,universe "$DISTR" /target
 
 RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
 RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
-
 RUN curl -fsSLo wolfram-engine-orig.deb "$WOLFRAM_ENGINE"
+
 RUN dpkg-deb -R wolfram-engine-orig.deb wolfram-engine
-RUN grep -n ^Depends: wolfram-engine/DEBIAN/control|cut -f1 -d: > lineno
+# Extract the line number of the Depends line
+RUN grep -n ^Depends: wolfram-engine/DEBIAN/control | cut -f1 -d: > lineno
+# Correct dependencies
 RUN sed -i "$(cat lineno)s/libwayland-egl1-mesa/libwayland-egl1, libegl1/;$(cat lineno)s/libasound2/libasound2t64/" wolfram-engine/DEBIAN/control
-RUN dpkg-deb -b wolfram-engine /target/var/tmp/wolfram-engine.deb
+RUN dpkg-deb -b wolfram-engine wolfram-engine.deb
+# Extract deps for debootstrap
+RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
+
+RUN debootstrap --merged-usr --arch=arm64 \
+    --include="git,vim,curl,g++,pandoc,texlive-xetex,$(cat wolfram-deps)" \
+    --variant=minbase \
+    --components=main,universe "$DISTR" /target
+
+# You should agree to the Wolfram Engine license before using this software
+RUN yes | DEBIAN_FRONTEND=readline dpkg --root /target --install ./wolfram-engine.deb
+
+RUN apt-mark -o Dir=/target auto "$(cat wolfram-deps | tr , ' ')"
 
 
 FROM scratch
@@ -57,10 +67,6 @@ RUN "$JULIA_INSTALLATION_PATH"/bin/julia -e 'using Pkg; Pkg.add("IJulia")'
 ## R
 RUN /opt/conda/bin/R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
 
-# You should agree to the Wolfram Engine license before using this software
-RUN yes | DEBIAN_FRONTEND=readline apt-get install -y /var/tmp/wolfram-engine.deb
-RUN rm /var/tmp/wolfram-engine.deb
-
 # Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 # The kernel must be manually installed
 # ```
@@ -68,7 +74,5 @@ RUN rm /var/tmp/wolfram-engine.deb
 # Needs["WolframLanguageForJupyter`"]
 # ConfigureJupyter["Add", "JupyterInstallation" -> "/opt/conda/bin/jupyter"]
 # ```
-
-RUN apt-get clean
 
 CMD ["/opt/conda/bin/jupyter", "lab", "--allow-root"]
