@@ -2,7 +2,7 @@
 FROM ubuntu:latest AS build
 
 WORKDIR /tmp
-ENV DISTR=questing
+ENV DISTR=plucky
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
 ENV WOLFRAM_ENGINE="https://files.wolframcdn.com/raspbian/14.2.1.0/wolfram-engine_14.2.1%2B202504031673_arm64.deb"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
