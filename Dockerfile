@@ -10,10 +10,8 @@ ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
 
-RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
-RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
+# Download and fix the Wolfram Engine package
 RUN curl -fsSLo wolfram-engine-orig.deb "$WOLFRAM_ENGINE"
-
 RUN dpkg-deb -R wolfram-engine-orig.deb wolfram-engine
 # Extract the line number of the Depends line
 RUN grep -n ^Depends: wolfram-engine/DEBIAN/control | cut -f1 -d: > lineno
@@ -32,6 +30,9 @@ RUN debootstrap --merged-usr --arch=arm64 \
 RUN yes | DEBIAN_FRONTEND=readline dpkg --root /target --install ./wolfram-engine.deb
 
 RUN apt-mark -o Dir=/target auto "$(cat wolfram-deps | tr , ' ')"
+
+RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
+RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
 
 
 FROM scratch
