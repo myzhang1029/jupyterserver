@@ -7,8 +7,7 @@ ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download
 ENV WOLFRAM_ENGINE="http://archive.raspberrypi.com/debian/pool/main/w/wolfram-engine/wolfram-engine_14.3.0+202510021899_arm64.deb"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
 
 # Download and fix the Wolfram Engine package
 RUN curl -fsSLo wolfram-engine-orig.deb "$WOLFRAM_ENGINE"
@@ -27,7 +26,12 @@ RUN debootstrap --merged-usr --arch=arm64 \
     --components=main,universe "$DISTR" /target
 
 # You should agree to the Wolfram Engine license before using this software
-RUN yes | DEBIAN_FRONTEND=readline dpkg --root /target --install ./wolfram-engine.deb
+RUN echo Name: shared/accepted-wolfram-eula >> /target/var/cache/debconf/config.dat
+RUN echo Template: shared/accepted-wolfram-eula >> /target/var/cache/debconf/config.dat
+RUN echo Value: true >> /target/var/cache/debconf/config.dat
+RUN echo Owners: wolfram-engine >> /target/var/cache/debconf/config.dat
+RUN echo Flags: seen >> /target/var/cache/debconf/config.dat
+RUN dpkg --root /target --install ./wolfram-engine.deb
 
 RUN apt-mark -o Dir=/target auto $(cat wolfram-deps | tr , ' ')
 RUN apt -o Dir=/target clean
