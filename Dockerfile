@@ -29,7 +29,7 @@ RUN debootstrap --merged-usr --arch=arm64 \
 # You should agree to the Wolfram Engine license before using this software
 RUN yes | DEBIAN_FRONTEND=readline dpkg --root /target --install ./wolfram-engine.deb
 
-RUN apt-mark -o Dir=/target auto "$(cat wolfram-deps | tr , ' ')"
+RUN apt-mark -o Dir=/target auto $(cat wolfram-deps | tr , ' ')
 
 RUN curl -fsSLo /target/var/tmp/Miniforge3.sh "$MINIFORGE"
 RUN curl -fsSLo /target/var/tmp/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
