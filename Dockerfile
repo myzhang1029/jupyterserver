@@ -15,7 +15,7 @@ RUN dpkg-deb -R wolfram-engine-orig.deb wolfram-engine
 # Extract the line number of the Depends line
 RUN grep -n ^Depends: wolfram-engine/DEBIAN/control | cut -f1 -d: > lineno
 # Correct dependencies
-RUN sed -i "$(cat lineno)s/libasound2/libasound2t64/" wolfram-engine/DEBIAN/control
+RUN sed -i "$(cat lineno)s/libwayland-egl1/libwayland-egl1, libegl1/;$(cat lineno)s/libasound2/libasound2t64/" wolfram-engine/DEBIAN/control
 RUN dpkg-deb -b wolfram-engine wolfram-engine.deb
 # Extract deps for debootstrap
 RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
