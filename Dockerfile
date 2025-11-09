@@ -21,7 +21,7 @@ RUN dpkg-deb -b wolfram-engine wolfram-engine.deb
 RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
 
 RUN debootstrap --merged-usr --arch=arm64 \
-    --include="ca-certificates,iproute2,iputils-ping,less,xxd,git,vim,curl,g++,pandoc,texlive-xetex,$(cat wolfram-deps)" \
+    --include="ca-certificates,iproute2,iputils-ping,less,xxd,git,vim,curl,g++,pandoc,texlive-xetex,texlive-fonts-recommended,texlive-plain-generic,$(cat wolfram-deps)" \
     --variant=minbase \
     --components=main,universe "$DISTR" /target
 
@@ -59,7 +59,7 @@ RUN rm /var/tmp/Miniforge3.sh
 RUN /opt/conda/bin/conda install python mamba jupyterlab \
     matplotlib seaborn numpy pandas scipy sympy pillow \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
-    ipympl xeus-cpp r r-irkernel nbconvert nbconvert-webpdf nbconvert-qtpdf playwright
+    ipympl xeus-cpp r r-irkernel nbconvert
 RUN /opt/conda/bin/conda clean --all --yes
 
 # Kernel initialization steps for additional languages
