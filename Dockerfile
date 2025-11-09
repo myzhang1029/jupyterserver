@@ -59,7 +59,7 @@ RUN rm /var/tmp/Miniforge3.sh
 RUN /opt/conda/bin/conda install python mamba jupyterlab \
     matplotlib seaborn numpy pandas scipy sympy pillow \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
-    ipympl xeus-cling r r-irkernel nbconvert nbconvert-webpdf
+    ipympl xeus-cling r r-irkernel nbconvert nbconvert-webpdf nbconvert-qtpdf playwright
 RUN /opt/conda/bin/conda clean --all --yes
 
 # Kernel initialization steps for additional languages
