@@ -45,19 +45,24 @@ FROM scratch
 
 COPY --from=build /target /
 
-ENV CARGO_HOME=/opt/cargo
-ENV RUSTUP_HOME=/opt/rustup
-ENV CONDA_INSTALLATION_PATH=/opt/conda
-ENV PATH="/home/jupyter/.juliaup/bin:/opt/cargo/bin:/opt/conda/bin:$PATH"
+ENV CARGO_HOME=/home/jupyter/.cargo
+ENV RUSTUP_HOME=/home/jupyter/.rustup
+ENV JULIAUP_INSTALLATION_PATH=/home/jupyter/.juliaup
+ENV CONDA_INSTALLATION_PATH=/home/jupyter/.conda
+ENV PATH="/home/jupyter/.juliaup/bin:/home/jupyter/.cargo/bin:/home/jupyter/.conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
-RUN echo "PATH='$PATH'" >> /etc/profile
-RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/profile
-RUN echo "RUSTUP_HOME='$RUSTUP_HOME'" >> /etc/profile
+RUN echo "PATH='$PATH'" > /etc/environment
+RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/environment
+RUN echo "RUSTUP_HOME='$RUSTUP_HOME'" >> /etc/environment
 
-# Install conda here to make sure the shebang paths are correct
-RUN curl -fsSLo /tmp/Miniforge3.sh "$MINIFORGE"
+RUN usermod -aG video jupyter
+USER jupyter
+WORKDIR /home/jupyter
+
+# Install conda in the second stage to make sure the shebang paths are correct
+RUN curl --proto '=https' --tlsv1.2 -fsSLo /tmp/Miniforge3.sh "$MINIFORGE"
 RUN bash /tmp/Miniforge3.sh -b -p "$CONDA_INSTALLATION_PATH"
 RUN rm /tmp/Miniforge3.sh
 RUN conda install python mamba jupyterlab \
@@ -65,27 +70,25 @@ RUN conda install python mamba jupyterlab \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
     ipympl xeus-cpp r r-irkernel nbconvert
 RUN conda clean --all --yes
+
+USER root
 RUN echo "$CONDA_INSTALLATION_PATH/lib" > /etc/ld.so.conf.d/conda.conf
 RUN ldconfig
 RUN setcap CAP_NET_BIND_SERVICE=+eip "$(realpath "$CONDA_INSTALLATION_PATH/bin/python")"
+USER jupyter
 
 # Kernel initialization steps for additional languages
 ## Rust
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly --profile minimal
 RUN cargo install --locked evcxr_jupyter
-RUN JUPYTER_PATH="$CONDA_INSTALLATION_PATH/share/jupyter" evcxr_jupyter --install
-## R
-RUN R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
-
-RUN usermod -aG video jupyter
-USER jupyter
-WORKDIR /home/jupyter
-
+RUN evcxr_jupyter --install
 ## Julia
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y --path "$JULIAUP_INSTALLATION_PATH"
 RUN julia -e 'using Pkg; Pkg.add("IJulia")'
+## R
+RUN R -e 'IRkernel::installspec(); IRkernel::installspec()'
 ## Wolfram
-RUN curl -fsSLo /home/jupyter/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
+RUN curl --proto '=https' --tlsv1.2 -fsSLo /home/jupyter/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
 # Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 # The kernel must be manually installed
 # ```
