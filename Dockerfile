@@ -48,7 +48,7 @@ COPY --from=build /target /
 ENV CARGO_HOME=/opt/cargo
 ENV RUSTUP_HOME=/opt/rustup
 ENV CONDA_INSTALLATION_PATH=/opt/conda
-ENV PATH="/opt/cargo/bin:/opt/julia/bin:/opt/conda/bin:$PATH"
+ENV PATH="/home/jupyter/.juliaup/bin:/opt/cargo/bin:/opt/conda/bin:$PATH"
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
