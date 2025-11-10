@@ -74,13 +74,14 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip "$(realpath "$CONDA_INSTALLATION_PATH/bin/p
 ## Rust
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly --profile minimal
 RUN cargo install --locked evcxr_jupyter
-RUN evcxr_jupyter --install
+RUN JUPYTER_PATH="$CONDA_INSTALLATION_PATH/share/jupyter" evcxr_jupyter --install
 ## Julia
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y --path "$JULIA_INSTALLATION_PATH"
 RUN julia -e 'using Pkg; Pkg.add("IJulia")'
 ## R
 RUN R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
 
+RUN usermod -aG video jupyter
 USER jupyter
 WORKDIR /home/jupyter
 
