@@ -47,7 +47,6 @@ COPY --from=build /target /
 
 ENV CARGO_HOME=/opt/cargo
 ENV RUSTUP_HOME=/opt/rustup
-ENV JULIA_INSTALLATION_PATH=/opt/julia
 ENV CONDA_INSTALLATION_PATH=/opt/conda
 ENV PATH="/opt/cargo/bin:/opt/julia/bin:/opt/conda/bin:$PATH"
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
@@ -75,9 +74,6 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip "$(realpath "$CONDA_INSTALLATION_PATH/bin/p
 RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly --profile minimal
 RUN cargo install --locked evcxr_jupyter
 RUN JUPYTER_PATH="$CONDA_INSTALLATION_PATH/share/jupyter" evcxr_jupyter --install
-## Julia
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y --path "$JULIA_INSTALLATION_PATH"
-RUN julia -e 'using Pkg; Pkg.add("IJulia")'
 ## R
 RUN R -e 'IRkernel::installspec(); IRkernel::installspec(user = FALSE)'
 
@@ -85,6 +81,10 @@ RUN usermod -aG video jupyter
 USER jupyter
 WORKDIR /home/jupyter
 
+## Julia
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://install.julialang.org | sh -s -- -y
+RUN julia -e 'using Pkg; Pkg.add("IJulia")'
+## Wolfram
 RUN curl -fsSLo /home/jupyter/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
 # Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 # The kernel must be manually installed
