@@ -98,7 +98,7 @@ RUN julia -e 'using Pkg; Pkg.add("IJulia")'
 ## R
 RUN R -e 'IRkernel::installspec(); IRkernel::installspec()'
 ## Wolfram
-COPY mathematica.json $CONDA_INSTALLATION_PATH/share/jupyter/kernels/mathematica/mathematica.json
+COPY mathematica.json $CONDA_INSTALLATION_PATH/share/jupyter/kernels/mathematica/kernel.json
 # running Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 
 CMD ["/opt/conda/bin/jupyter", "lab"]
