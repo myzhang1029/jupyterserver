@@ -75,6 +75,7 @@ RUN conda install python mamba jupyterlab \
     matplotlib seaborn numpy pandas scipy sympy pillow \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
     ipympl xeus-cpp r r-irkernel nbconvert
+RUN mkdir "$CONDA_INSTALLATION_PATH/builtin-envs"
 COPY conda-envs/quantum.yml "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml"
 RUN conda env create --file "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml" --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/quantum"
 RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --prefix "$CONDA_INSTALLATION_PATH" --name quantum-python --display-name "Quantum Python"
