@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/opt/Wolfram/WolframEngine/14.3/Executables/WolframKernel",
+    "-script",
+    "/home/jupyter/.Mathematica/Paclets/Repository/WolframLanguageForJupyter-0.9.3/Resources/KernelForWolframLanguageForJupyter.wl",
+    "{connection_file}"
+  ],
+  "display_name": "Mathematica",
+  "language": "Wolfram Language",
+  "interrupt_mode": "signal"
+}

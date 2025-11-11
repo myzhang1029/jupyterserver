@@ -4,6 +4,7 @@ FROM ubuntu:latest AS build
 WORKDIR /tmp
 ENV DISTR=plucky
 ENV WOLFRAM_ENGINE="http://archive.raspberrypi.com/debian/pool/main/w/wolfram-engine/wolfram-engine_14.3.0+202510021899_arm64.deb"
+ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
 
@@ -41,6 +42,11 @@ RUN echo "jupyter:x:1000:" >> /target/etc/group
 RUN mkdir /target/home/jupyter
 RUN chown 1000:1000 /target/home/jupyter
 
+# Pre-unpack the Wolfram kernel to the target
+RUN curl --proto '=https' --tlsv1.2 -fsSLo WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
+RUN mkdir -p /target/home/jupyter/.Mathematica/Paclets/Repository
+RUN unzip -d /target/home/jupyter/.Mathematica/Paclets/Repository WolframLanguageForJupyter.paclet
+
 FROM scratch
 
 COPY --from=build /target /
@@ -51,7 +57,6 @@ ENV JULIAUP_INSTALLATION_PATH=/home/jupyter/.juliaup
 ENV CONDA_INSTALLATION_PATH=/home/jupyter/.conda
 ENV PATH="/home/jupyter/.juliaup/bin:/home/jupyter/.cargo/bin:/home/jupyter/.conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
-ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
 RUN echo "PATH='$PATH'" > /etc/environment
 RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/environment
@@ -70,7 +75,7 @@ RUN conda install python mamba jupyterlab \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
     ipympl xeus-cpp r r-irkernel nbconvert
 RUN conda create --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/quantum" ipykernel qiskit qutip cirq qiskit-ibm-runtime pylatexenc pennylane seaborn
-RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --user --name quantum-python --display-name "Quantum Python"
+RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --name quantum-python --display-name "Quantum Python"
 RUN conda clean --all --yes
 
 USER root
@@ -90,13 +95,7 @@ RUN julia -e 'using Pkg; Pkg.add("IJulia")'
 ## R
 RUN R -e 'IRkernel::installspec(); IRkernel::installspec()'
 ## Wolfram
-RUN curl --proto '=https' --tlsv1.2 -fsSLo /home/jupyter/WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
-# Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
-# The kernel must be manually installed
-# ```
-# PacletInstall["/home/jupyter/WolframLanguageForJupyter.paclet"]
-# Needs["WolframLanguageForJupyter`"]
-# ConfigureJupyter["Add", "JupyterInstallation" -> "/opt/conda/bin/jupyter"]
-# ```
+COPY mathematica.json $CONDA_INSTALLATION_PATH/share/jupyter/kernels/mathematica/mathematica.json
+# running Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 
 CMD ["/opt/conda/bin/jupyter", "lab"]
