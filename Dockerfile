@@ -6,7 +6,7 @@ ENV DISTR=plucky
 ENV WOLFRAM_ENGINE="http://archive.raspberrypi.com/debian/pool/main/w/wolfram-engine/wolfram-engine_14.3.0+202510021899_arm64.deb"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y debootstrap curl unzip
 
 # Download and fix the Wolfram Engine package
 RUN curl -fsSLo wolfram-engine-orig.deb "$WOLFRAM_ENGINE"
