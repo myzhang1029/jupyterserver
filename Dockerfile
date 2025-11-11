@@ -70,6 +70,7 @@ WORKDIR /home/jupyter
 RUN curl --proto '=https' --tlsv1.2 -fsSLo /tmp/Miniforge3.sh "$MINIFORGE"
 RUN bash /tmp/Miniforge3.sh -b -p "$CONDA_INSTALLATION_PATH"
 RUN rm /tmp/Miniforge3.sh
+RUN conda init
 RUN conda install python mamba jupyterlab \
     matplotlib seaborn numpy pandas scipy sympy pillow \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
