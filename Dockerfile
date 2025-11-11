@@ -46,6 +46,7 @@ RUN chown 1000:1000 /target/home/jupyter
 RUN curl --proto '=https' --tlsv1.2 -fsSLo WolframLanguageForJupyter.paclet "$WOLFRAM_PACLET"
 RUN mkdir -p /target/home/jupyter/.Mathematica/Paclets/Repository
 RUN unzip -d /target/home/jupyter/.Mathematica/Paclets/Repository WolframLanguageForJupyter.paclet
+RUN chown -R 1000:1000 /target/home/jupyter/.Mathematica
 
 FROM scratch
 
