@@ -77,7 +77,7 @@ RUN conda install python mamba jupyterlab \
     ipympl xeus-cpp r r-irkernel nbconvert
 COPY conda-envs/quantum.yml "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml"
 RUN conda env create --file "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml" --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/quantum"
-RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --name quantum-python --display-name "Quantum Python"
+RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --prefix "$CONDA_INSTALLATION_PATH" --name quantum-python --display-name "Quantum Python"
 RUN conda clean --all --yes
 
 USER root
