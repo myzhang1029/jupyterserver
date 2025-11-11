@@ -6,9 +6,11 @@ dependencies:
   - qiskit-ibm-runtime>=0.43.1
   - qutip
   - ipykernel
-  - seaborn
+  - openblas
   - pylatexenc
+  - seaborn
   - pypi:
     - cirq
     - pennylane
+    - qiskit-aer
     - qualtran
