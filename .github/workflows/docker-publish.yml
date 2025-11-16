@@ -39,8 +39,16 @@ jobs:
     steps:
       - name: Maximize build space
         run: |
+          df -h
+          sudo rm -rf /opt/pipx /opt/google-cloud-sdk /opt/az
+          sudo rm -rf /usr/local/share/powershell /usr/local/aws-cli
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo rm -rf /var/lib/docker/*
           sudo mount --bind /mnt /var/lib/docker
           sudo systemctl restart docker.service
+          df -h
 
       - name: Checkout repository
         uses: actions/checkout@v4
