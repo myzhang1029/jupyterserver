@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Maximize build space
         run: |
-          sudo mount /dev/sda1 /var/lib/docker
+          sudo mount --bind /mnt /var/lib/docker
           sudo systemctl restart docker.service
 
       - name: Checkout repository
