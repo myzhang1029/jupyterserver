@@ -48,7 +48,7 @@ RUN mkdir -p /target/home/jupyter/.Mathematica/Paclets/Repository
 RUN unzip -d /target/home/jupyter/.Mathematica/Paclets/Repository WolframLanguageForJupyter.paclet
 RUN chown -R 1000:1000 /target/home/jupyter/.Mathematica
 
-FROM scratch as stage1
+FROM scratch
 
 COPY --from=build /target /
 
@@ -58,6 +58,10 @@ ENV JULIAUP_INSTALLATION_PATH=/home/jupyter/.juliaup
 ENV CONDA_INSTALLATION_PATH=/home/jupyter/.conda
 ENV PATH="/home/jupyter/.juliaup/bin:/home/jupyter/.cargo/bin:/home/jupyter/.conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ENV MINIFORGE="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh"
+
+RUN echo "PATH='$PATH'" > /etc/environment
+RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/environment
+RUN echo "RUSTUP_HOME='$RUSTUP_HOME'" >> /etc/environment
 
 RUN usermod -aG video jupyter
 USER jupyter
@@ -81,7 +85,7 @@ RUN conda clean --all --yes
 USER root
 RUN echo "$CONDA_INSTALLATION_PATH/lib" > /etc/ld.so.conf.d/conda.conf
 RUN ldconfig
-RUN setcap CAP_NET_BIND_SERVICE=ep "$(realpath "$CONDA_INSTALLATION_PATH/bin/python")"
+RUN setcap CAP_NET_BIND_SERVICE=+eip "$(realpath "$CONDA_INSTALLATION_PATH/bin/python")"
 USER jupyter
 
 # Kernel initialization steps for additional languages
@@ -97,17 +101,5 @@ RUN R -e 'IRkernel::installspec(); IRkernel::installspec()'
 ## Wolfram
 COPY mathematica.json $CONDA_INSTALLATION_PATH/share/jupyter/kernels/mathematica/kernel.json
 # running Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
-
-FROM scratch
-
-COPY --from=stage1 / /
-
-ENV CARGO_HOME=/home/jupyter/.cargo
-ENV RUSTUP_HOME=/home/jupyter/.rustup
-ENV PATH="/home/jupyter/.juliaup/bin:/home/jupyter/.cargo/bin:/home/jupyter/.conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-RUN echo "PATH='$PATH'" > /etc/environment
-RUN echo "CARGO_HOME='$CARGO_HOME'" >> /etc/environment
-RUN echo "RUSTUP_HOME='$RUSTUP_HOME'" >> /etc/environment
 
 CMD ["/opt/conda/bin/jupyter", "lab"]
