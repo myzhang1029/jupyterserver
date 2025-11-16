@@ -85,7 +85,7 @@ RUN conda clean --all --yes
 USER root
 RUN echo "$CONDA_INSTALLATION_PATH/lib" > /etc/ld.so.conf.d/conda.conf
 RUN ldconfig
-RUN setcap CAP_NET_BIND_SERVICE=+eip "$(realpath "$CONDA_INSTALLATION_PATH/bin/python")"
+RUN setcap CAP_NET_BIND_SERVICE=ep "$(realpath "$CONDA_INSTALLATION_PATH/bin/python")"
 USER jupyter
 
 # Kernel initialization steps for additional languages
@@ -102,4 +102,4 @@ RUN R -e 'IRkernel::installspec(); IRkernel::installspec()'
 COPY mathematica.json $CONDA_INSTALLATION_PATH/share/jupyter/kernels/mathematica/kernel.json
 # running Wolfram Kernel requires Raspberry Pi's `/dev/vcio`.
 
-CMD ["/opt/conda/bin/jupyter", "lab"]
+CMD ["$CONDA_INSTALLATION_PATH/bin/jupyter", "lab"]
