@@ -73,7 +73,7 @@ RUN bash /tmp/Miniforge3.sh -b -p "$CONDA_INSTALLATION_PATH"
 RUN rm /tmp/Miniforge3.sh
 RUN conda init
 RUN conda install python mamba jupyterlab \
-    matplotlib seaborn numpy pandas scipy sympy pillow \
+    matplotlib seaborn numpy pandas scipy sympy pillow opencv \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
     ipympl xeus-cpp r r-irkernel nbconvert
 RUN mkdir "$CONDA_INSTALLATION_PATH/builtin-envs"
