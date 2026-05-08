@@ -2,7 +2,7 @@
 FROM ubuntu:latest AS build
 
 WORKDIR /tmp
-ENV DISTR=plucky
+ENV DISTR=resolute
 ENV WOLFRAM_ENGINE="http://archive.raspberrypi.com/debian/pool/main/w/wolfram-engine/wolfram-engine_14.3.0+202510021899_arm64.deb"
 ENV WOLFRAM_PACLET="https://github.com/WolframResearch/WolframLanguageForJupyter/releases/download/v0.9.3/WolframLanguageForJupyter-0.9.3.paclet"
 
