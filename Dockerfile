@@ -20,7 +20,7 @@ RUN dpkg-deb -z0 -Snone -Znone -b wolfram-engine wolfram-engine.deb
 RUN sed "$(cat lineno)q;d" wolfram-engine/DEBIAN/control | cut -f2- -d: | tr -d ' ' > wolfram-deps
 
 RUN debootstrap --merged-usr --arch=arm64 \
-    --include="ca-certificates,iproute2,iputils-ping,less,xxd,git,vim,curl,g++,pandoc,texlive-xetex,texlive-fonts-recommended,texlive-plain-generic,$(cat wolfram-deps)" \
+    --include="ca-certificates,iproute2,iputils-ping,less,xxd,git,vim,curl,g++,pandoc,psmisc,texlive-xetex,texlive-fonts-recommended,texlive-plain-generic,$(cat wolfram-deps)" \
     --variant=minbase \
     --components=main,universe "$DISTR" /target
 
