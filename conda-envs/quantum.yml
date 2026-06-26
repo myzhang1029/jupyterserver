@@ -1,6 +1,7 @@
 channels:
   - conda-forge
 dependencies:
+  - pandas
   - python>=3.12
   - qiskit
   - qiskit-ibm-runtime>=0.43.1
@@ -9,6 +10,7 @@ dependencies:
   - openblas
   - pylatexenc
   - seaborn
+  - tqdm
   - pypi:
     - cirq
     - pennylane

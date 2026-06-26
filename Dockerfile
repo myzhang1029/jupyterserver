@@ -77,9 +77,15 @@ RUN conda install python mamba jupyterlab \
     jupyter-collaboration jupyterlab-variableinspector jupyterlab_execute_time jupyter-resource-usage jupyterlab-katex \
     ipympl xeus-cpp r r-irkernel nbconvert
 RUN mkdir "$CONDA_INSTALLATION_PATH/builtin-envs"
+COPY conda-envs/learn.yml "$CONDA_INSTALLATION_PATH/builtin-envs/learn.yml"
 COPY conda-envs/quantum.yml "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml"
+COPY conda-envs/radio.yml "$CONDA_INSTALLATION_PATH/builtin-envs/radio.yml"
+RUN conda env create --file "$CONDA_INSTALLATION_PATH/builtin-envs/learn.yml" --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/learn"
 RUN conda env create --file "$CONDA_INSTALLATION_PATH/builtin-envs/quantum.yml" --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/quantum"
+RUN conda env create --file "$CONDA_INSTALLATION_PATH/builtin-envs/radio.yml" --prefix "$CONDA_INSTALLATION_PATH/builtin-envs/radio"
+RUN "$CONDA_INSTALLATION_PATH/builtin-envs/learn/bin/python" -m ipykernel install --prefix "$CONDA_INSTALLATION_PATH" --name ml-python --display-name "Machine Learning Python"
 RUN "$CONDA_INSTALLATION_PATH/builtin-envs/quantum/bin/python" -m ipykernel install --prefix "$CONDA_INSTALLATION_PATH" --name quantum-python --display-name "Quantum Python"
+RUN "$CONDA_INSTALLATION_PATH/builtin-envs/radio/bin/python" -m ipykernel install --prefix "$CONDA_INSTALLATION_PATH" --name radio-python --display-name "RadioConda Python"
 RUN conda clean --all --yes
 
 USER root

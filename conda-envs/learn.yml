@@ -1,0 +1,30 @@
+channels:
+  - conda-forge
+dependencies:
+  - hdf5
+  - ipykernel
+  - ipython
+  - kaggle
+  - kagglehub
+  - matplotlib
+  - mypy
+  - mypy_extensions
+  - numpy
+  - pandas
+  - pandas-stubs
+  - pillow
+  - pip
+  - py-opencv
+  - python
+  - pytorch
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - scipy-stubs
+  - setuptools
+  - tensorflow
+  - torchvision
+  - torchaudio
+  - tqdm
+  - types-tqdm
+  - typing-extensions
